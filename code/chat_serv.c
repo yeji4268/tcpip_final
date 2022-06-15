@@ -28,7 +28,7 @@ int clnt_socks[MAX_CLNT];
 // mutex 객체  
 pthread_mutex_t mutx ; 
 
-int main(int argc, char &argv[])
+int main(int argc, char *argv[])
 {
 	// 서버 측 소켓, 클라이언트 측 소켓 
 	int serv_sock, clnt_sock; 
@@ -216,6 +216,6 @@ void send_msg(char *msg, int len)
 void error_handling(char *msg)
 {
 	fputs(msg, stderr); 
-	fputs('\n', stderr); 
+	fputc('\n', stderr); 
 	exit(1); 
 }
