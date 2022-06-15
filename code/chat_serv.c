@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>  
+#include <stdlib.h> 
 #include <unistd.h>
 #include <string.h>
 #include <arpa/inet.h>
@@ -10,163 +10,168 @@
 #define BUF_SIZE 100
 #define MAX_CLNT 256
 
+// í´ë¼ì´ì–¸íŠ¸ë¡œë¶€í„° ë°›ì€ ë©”ì‹œì§€ ì²˜ë¦¬
 void *handle_clnt(void *arg); 
+
+// í´ë¼ì´ì–¸íŠ¸ë¡œë¶€í„° ë©”ì‹œì§€ë¥¼ ìˆ˜ì‹ 
 void send_msg(char *msg, int len); 
+
+// ì—ëŸ¬ ì²˜ë¦¬ 
 void error_handling(char *msg); 
 
-# Å¬¶óÀÌ¾ðÆ® °³¼ö ÃÊ±â°ª : 0  
+// í´ë¼ì´ì–¸íŠ¸ ê°œìˆ˜ ì´ˆê¸°ê°’ : 0  
 int clnt_cnt = 0 ; 
 
-# Å¬¶óÀÌ¾ðÆ® ¼ÒÄÏ  
+// í´ë¼ì´ì–¸íŠ¸ ì†Œì¼“  
 int clnt_socks[MAX_CLNT]; 
 
-# mutex °´Ã¼  
+// mutex ê°ì²´  
 pthread_mutex_t mutx ; 
 
 int main(int argc, char &argv[])
 {
-	# ¼­¹ö Ãø ¼ÒÄÏ, Å¬¶óÀÌ¾ðÆ® Ãø ¼ÒÄÏ 
+	// ì„œë²„ ì¸¡ ì†Œì¼“, í´ë¼ì´ì–¸íŠ¸ ì¸¡ ì†Œì¼“ 
 	int serv_sock, clnt_sock; 
 	
-	# ¼­¹ö Ãø ÁÖ¼Ò, Å¬¶óÀÌ¾ðÆ® Ãø ÁÖ¼Ò  
+	// ì„œë²„ ì¸¡ ì£¼ì†Œ, í´ë¼ì´ì–¸íŠ¸ ì¸¡ ì£¼ì†Œ  
 	struct sockaddr_in serv_adr, clnt_adr ; 
 	
-	# Å¬¶óÀÌ¾ðÆ® ÁÖ¼Ò »çÀÌÁî  
+	// í´ë¼ì´ì–¸íŠ¸ ì£¼ì†Œ ì‚¬ì´ì¦ˆ  
 	int clnt_adr_sz ; 
 	
-	# ¾²·¹µå ½Äº°ÀÚ  
+	// ì“°ë ˆë“œ ì‹ë³„ìž  
 	pthread_t t_id ;
 	
-	# main ÇÔ¼ö¿¡ Àü´ÞµÇ´Â Á¤º¸ÀÇ °³¼ö(argc)°¡ 2°³°¡  ¾Æ´Ñ °æ¿ì 
-	# Áï, ½ÇÇà ½Ã ½ÇÇà°æ·Î(½ÇÇà ÆÄÀÏ ÀÌ¸§)¿Í Æ÷Æ® ¹øÈ£°¡ ÀÔ·ÂµÇÁö ¾ÊÀº °æ¿ì ¿Ã¹Ù¸¥ »ç¿ë¹ýÀ» ¾È³»ÇÑ´Ù.  
+	// main í•¨ìˆ˜ì— ì „ë‹¬ë˜ëŠ” ì •ë³´ì˜ ê°œìˆ˜(argc)ê°€ 2ê°œê°€  ì•„ë‹Œ ê²½ìš° 
+	// ì¦‰, ì‹¤í–‰ ì‹œ ì‹¤í–‰ê²½ë¡œ(ì‹¤í–‰ íŒŒì¼ ì´ë¦„)ì™€ í¬íŠ¸ ë²ˆí˜¸ê°€ ìž…ë ¥ë˜ì§€ ì•Šì€ ê²½ìš° ì˜¬ë°”ë¥¸ ì‚¬ìš©ë²•ì„ ì•ˆë‚´í•œë‹¤.  
 	if(argc != 2){
 		printf("Usage : %s <port> \n", argv[0]); 
 		
-		# ÇÁ·Î±×·¥ Á¾·á  
+		// í”„ë¡œê·¸ëž¨ ì¢…ë£Œ  
 		exit(1); 
 	}
 	
-	# mutext °´Ã¼ ÃÊ±âÈ­ 
-	# pthread_mutex_init() ÇÔ¼öÀÇ Ã¹¹øÂ° ¸Å°³º¯¼ö´Â ÃÊ±âÈ­ ½ÃÅ³ mutex °´Ã¼, µÎ¹øÂ° ¸Å°³º¯¼ö´Â ¹ÂÅØ½ºÀÇ Æ¯Â¡ÀÌ´Ù. 
-	# Ã¹ ¹øÂ° ÀÎÀÚ : mutx, µÎ ¹øÂ° ÀÎÀÚ : NULL (±âº» °ª)
-	# ¹ÝÈ¯ °ª : ¼º°ø(0), ½ÇÆÐ(-1)   
+	// mutext ê°ì²´ ì´ˆê¸°í™” 
+	// pthread_mutex_init() í•¨ìˆ˜ì˜ ì²«ë²ˆì§¸ ë§¤ê°œë³€ìˆ˜ëŠ” ì´ˆê¸°í™” ì‹œí‚¬ mutex ê°ì²´, ë‘ë²ˆì§¸ ë§¤ê°œë³€ìˆ˜ëŠ” ë®¤í…ìŠ¤ì˜ íŠ¹ì§•ì´ë‹¤. 
+	// ì²« ë²ˆì§¸ ì¸ìž : mutx, ë‘ ë²ˆì§¸ ì¸ìž : NULL (ê¸°ë³¸ ê°’)
+	// ë°˜í™˜ ê°’ : ì„±ê³µ(0), ì‹¤íŒ¨(-1)   
 	pthread_mutex_init(&mutx, NULL); 
 	
-	# ¼­¹ö Ãø ¼ÒÄÏ »ý¼º
-	# socket() ÇÔ¼ö´Â ¸Å°³º¯¼ö·Î domain(ÀÎÅÍ³Ý Åë½Å/ °°Àº ½Ã½ºÅÛ ³» Åë½Å ¼³Á¤), type (µ¥ÀÌÅÍÀÇ Àü¼Û ÇüÅÂ)
-	# , protocol(ÇÁ·ÎÅäÄÝ ÁöÁ¤)À» »ç¿ëÇÑ´Ù. 
-	# Ã¹ ¹øÂ° ÀÎÀÚ : PF_INET(IPv4 ÀÎÅÍ³Ý ÇÁ·ÎÅäÄÝ »ç¿ë), µÎ ¹øÂ° ÀÎÀÚ : SOCK_STREAM(TCP/IP ÇÁ·ÎÅäÄÝ »ç¿ë)
-	# ¼¼ ¹øÂ° ÀÎÀÚ : 0 (ÀÚµ¿À¸·Î type¿¡¼­ ÁöÁ¤)
-	# ¹ÝÈ¯ °ª : ¼º°ø(0 ÀÌ»óÀÇ °ª), ½ÇÆÐ(-1)  
+	// ì„œë²„ ì¸¡ ì†Œì¼“ ìƒì„±
+	// socket() í•¨ìˆ˜ëŠ” ë§¤ê°œë³€ìˆ˜ë¡œ domain(ì¸í„°ë„· í†µì‹ / ê°™ì€ ì‹œìŠ¤í…œ ë‚´ í†µì‹  ì„¤ì •), type (ë°ì´í„°ì˜ ì „ì†¡ í˜•íƒœ)
+	// , protocol(í”„ë¡œí† ì½œ ì§€ì •)ì„ ì‚¬ìš©í•œë‹¤. 
+	// ì²« ë²ˆì§¸ ì¸ìž : PF_INET(IPv4 ì¸í„°ë„· í”„ë¡œí† ì½œ ì‚¬ìš©), ë‘ ë²ˆì§¸ ì¸ìž : SOCK_STREAM(TCP/IP í”„ë¡œí† ì½œ ì‚¬ìš©)
+	// ì„¸ ë²ˆì§¸ ì¸ìž : 0 (ìžë™ìœ¼ë¡œ typeì—ì„œ ì§€ì •)
+	// ë°˜í™˜ ê°’ : ì„±ê³µ(0 ì´ìƒì˜ ê°’), ì‹¤íŒ¨(-1)  
 	serv_sock = socket(PF_INET, SOCK_STREAM, 0); 
 	
-	# ¸Þ¸ð¸® ¼¼ÆÃ : »ý¼ºµÈ ¼ÒÄÏ ÃÊ±âÈ­ ¸ñÀû (¾²·¹±â °ª Á¦°Å) 
-	# memset() ÇÔ¼ö´Â ¸Å°³º¯¼ö·Î *ptr(¼¼ÆÃÇÏ°íÀÚ ÇÏ´Â ¸Þ¸ð¸®ÀÇ ½ÃÀÛ ÁÖ¼Ò), value(¸Þ¸ð¸®¿¡ ¼¼ÆÃÇÏ°íÀÚ ÇÏ´Â °ª)
-	# , num(±æÀÌ, º¸Åë sizeof(µ¥ÀÌÅÍ)ÀÇ ÇüÅÂ·Î ÀÛ¼º)À» »ç¿ëÇÑ´Ù. 
-	# Ã¹ ¹øÂ° ÀÎÀÚ : &serv_sock(¼­¹ö Ãø ¼ÒÄÏ¿¡¼­), µÎ ¹øÂ° ÀÎÀÚ : 0 (0À¸·Î), ¼¼ ¹øÂ° ÀÎÀÚ : size(serv_adr) (¼­¹ö Ãø ÁÖ¼ÒÀÇ ±æÀÌ¸¸Å­ ¼³Á¤)
-	# ¹ÝÈ¯ °ª : ¼º°ø(ptr), ½ÇÆÐ(NULL) 
+	// ë©”ëª¨ë¦¬ ì„¸íŒ… : ìƒì„±ëœ ì†Œì¼“ ì´ˆê¸°í™” ëª©ì  (ì“°ë ˆê¸° ê°’ ì œê±°) 
+	// memset() í•¨ìˆ˜ëŠ” ë§¤ê°œë³€ìˆ˜ë¡œ *ptr(ì„¸íŒ…í•˜ê³ ìž í•˜ëŠ” ë©”ëª¨ë¦¬ì˜ ì‹œìž‘ ì£¼ì†Œ), value(ë©”ëª¨ë¦¬ì— ì„¸íŒ…í•˜ê³ ìž í•˜ëŠ” ê°’)
+	// , num(ê¸¸ì´, ë³´í†µ sizeof(ë°ì´í„°)ì˜ í˜•íƒœë¡œ ìž‘ì„±)ì„ ì‚¬ìš©í•œë‹¤. 
+	// ì²« ë²ˆì§¸ ì¸ìž : &serv_sock(ì„œë²„ ì¸¡ ì†Œì¼“ì—ì„œ), ë‘ ë²ˆì§¸ ì¸ìž : 0 (0ìœ¼ë¡œ), ì„¸ ë²ˆì§¸ ì¸ìž : size(serv_adr) (ì„œë²„ ì¸¡ ì£¼ì†Œì˜ ê¸¸ì´ë§Œí¼ ì„¤ì •)
+	// ë°˜í™˜ ê°’ : ì„±ê³µ(ptr), ì‹¤íŒ¨(NULL) 
 	memset(&serv_adr, 0, sizeof(serv_adr)); 
 	
-	# ¼­¹ö ÁÖ¼Ò Ã¼°è : AF_INET(IPv4) 
+	// ì„œë²„ ì£¼ì†Œ ì²´ê³„ : AF_INET(IPv4) 
 	serv_adr.sin_family = AF_INET ; 
 	
-	# ¼­¹ö IP ÁÖ¼Ò ¼³Á¤ : htonl(INADDR_ANY)
-	# INADDR_ANY : IP ÁÖ¼Ò¸¦ ÀÚµ¿À¸·Î Ã£¾Æ¼­ ´ëÀÔ (ÇØ´ç Æ÷Æ®¸¦ ¸ñÀûÁö·Î ÇÏ´Â ¸ðµç ¿¬°á ¿äÃ»¿¡ ´ëÇØ ÇØ´ç ÇÁ·Î±×·¥¿¡¼­ Ã³¸®) 
-	# htonl : È£½ºÆ® ¹ÙÀÌÆ® ¼ø¼­¸¦ µû¸£´Â µ¥ÀÌÅÍ¸¦ ³×Æ®¿öÅ© ¹ÙÀÌÆ® ¼ø¼­·Î º¯È¯(long integer¸¦ ³×Æ®¿öÅ© ¹ÙÀÌÆ® ¼ø¼­·Î)  
+	// ì„œë²„ IP ì£¼ì†Œ ì„¤ì • : htonl(INADDR_ANY)
+	// INADDR_ANY : IP ì£¼ì†Œë¥¼ ìžë™ìœ¼ë¡œ ì°¾ì•„ì„œ ëŒ€ìž… (í•´ë‹¹ í¬íŠ¸ë¥¼ ëª©ì ì§€ë¡œ í•˜ëŠ” ëª¨ë“  ì—°ê²° ìš”ì²­ì— ëŒ€í•´ í•´ë‹¹ í”„ë¡œê·¸ëž¨ì—ì„œ ì²˜ë¦¬) 
+	// htonl : í˜¸ìŠ¤íŠ¸ ë°”ì´íŠ¸ ìˆœì„œë¥¼ ë”°ë¥´ëŠ” ë°ì´í„°ë¥¼ ë„¤íŠ¸ì›Œí¬ ë°”ì´íŠ¸ ìˆœì„œë¡œ ë³€í™˜(long integerë¥¼ ë„¤íŠ¸ì›Œí¬ ë°”ì´íŠ¸ ìˆœì„œë¡œ)  
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY); 
 	
-	# Æ÷Æ® ¼³Á¤ : htons(atoi(argv[1]))
-	# argv[1] : ½ÇÇà ½Ã ÀÔ·ÂµÈ ÀÎÀÚ Áß µÎ ¹øÂ° °ª(Æ÷Æ®¹øÈ£) 
-	# atoi : ¹®ÀÚ¿­ ÇüÅÂ·Î ÀÔ·ÂµÈ Æ÷Æ® ¹øÈ£¸¦ Á¤¼ö·Î º¯È¯  
-	# htons :  È£½ºÆ® ¹ÙÀÌÆ® ¼ø¼­¸¦ µû¸£´Â µ¥ÀÌÅÍ¸¦ ³×Æ®¿öÅ© ¹ÙÀÌÆ® ¼ø¼­·Î º¯È¯(short integer¸¦ ³×Æ®¿öÅ© ¹ÙÀÌÆ® ¼ø¼­·Î) 
+	// í¬íŠ¸ ì„¤ì • : htons(atoi(argv[1]))
+	// argv[1] : ì‹¤í–‰ ì‹œ ìž…ë ¥ëœ ì¸ìž ì¤‘ ë‘ ë²ˆì§¸ ê°’(í¬íŠ¸ë²ˆí˜¸) 
+	// atoi : ë¬¸ìžì—´ í˜•íƒœë¡œ ìž…ë ¥ëœ í¬íŠ¸ ë²ˆí˜¸ë¥¼ ì •ìˆ˜ë¡œ ë³€í™˜  
+	// htons :  í˜¸ìŠ¤íŠ¸ ë°”ì´íŠ¸ ìˆœì„œë¥¼ ë”°ë¥´ëŠ” ë°ì´í„°ë¥¼ ë„¤íŠ¸ì›Œí¬ ë°”ì´íŠ¸ ìˆœì„œë¡œ ë³€í™˜(short integerë¥¼ ë„¤íŠ¸ì›Œí¬ ë°”ì´íŠ¸ ìˆœì„œë¡œ) 
 	serv_adr.sin_port = htons(atoi(argv[1])); 
 	
-	# ¼ÒÄÏ°ú ¼­¹öÀÇ Á¤º¸¸¦ ¹ÙÀÎµù 
-	# bind() ÇÔ¼ö´Â sockfd(¼ÒÄÏ µð½ºÅ©¸³ÅÍ), *myaddr(¼­¹öÀÇ IP ÁÖ¼Ò), addrlen(ÁÖ¼ÒÀÇ ±æÀÌ)¸¦ ¸Å°³º¯¼ö·Î »ç¿ëÇÑ´Ù. 
-	# Ã¹ ¹øÂ° ÀÎÀÚ : serv_sock(¼­¹ö ¼ÒÄÏ), µÎ ¹øÂ° ÀÎÀÚ : (struct sockaddr *)&serv_adr(¼­¹öÀÇ IP ÁÖ¼Ò), ¼¼ ¹øÂ° ÀÎÀÚ : sizeof(serv_adr)(¼­¹ö ÁÖ¼ÒÀÇ ±æÀÌ)
-	# ¹ÝÈ¯ °ª : ¼º°ø(0), ½ÇÆÐ(-1) 
+	// ì†Œì¼“ê³¼ ì„œë²„ì˜ ì •ë³´ë¥¼ ë°”ì¸ë”© 
+	// bind() í•¨ìˆ˜ëŠ” sockfd(ì†Œì¼“ ë””ìŠ¤í¬ë¦½í„°), *myaddr(ì„œë²„ì˜ IP ì£¼ì†Œ), addrlen(ì£¼ì†Œì˜ ê¸¸ì´)ë¥¼ ë§¤ê°œë³€ìˆ˜ë¡œ ì‚¬ìš©í•œë‹¤. 
+	// ì²« ë²ˆì§¸ ì¸ìž : serv_sock(ì„œë²„ ì†Œì¼“), ë‘ ë²ˆì§¸ ì¸ìž : (struct sockaddr *)&serv_adr(ì„œë²„ì˜ IP ì£¼ì†Œ), ì„¸ ë²ˆì§¸ ì¸ìž : sizeof(serv_adr)(ì„œë²„ ì£¼ì†Œì˜ ê¸¸ì´)
+	// ë°˜í™˜ ê°’ : ì„±ê³µ(0), ì‹¤íŒ¨(-1) 
 	if(bind(serv_sock, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) ==  -1)
-		# ½ÇÆÐ ½Ã ¿¡·¯ ¸Þ½ÃÁö Àü´Þ  
+		// ì‹¤íŒ¨ ì‹œ ì—ëŸ¬ ë©”ì‹œì§€ ì „ë‹¬  
 		error_handling("bind() error");
 		
-	# Å¬¶óÀÌ¾ðÆ®ÀÇ Á¢¼Ó ¿äÃ»À» ±â´Ù¸®µµ·Ï ¼³Á¤ 
-	# listen() ÇÔ¼öÀÇ ¸Å°³º¯¼ö´Â sock(¼ÒÄÏ ½Äº°ÀÚ/ ¼ÒÄÏ µð½ºÅ©¸³ÅÍ), backlog(¿¬°á ¿äÃ»À» ´ë±â½ÃÅ³ °ø°£)
-	# Ã¹ ¹øÂ° ÀÎÀÚ : serv_sock(¼­¹ö ¼ÒÄÏ), µÎ ¹øÂ° ÀÎÀÚ : 5 (Å¥ÀÇ Å©±â¸¦ 5·Î ¼³Á¤, Å¬¶óÀÌ¾ðÆ®ÀÇ ¿¬°á ¿äÃ»À» 5°³±îÁö ´ë±â½ÃÅ´)
-	# ¹ÝÈ¯ °ª :  ¼º°ø(0), ½ÇÆÐ(-1) 
+	// í´ë¼ì´ì–¸íŠ¸ì˜ ì ‘ì† ìš”ì²­ì„ ê¸°ë‹¤ë¦¬ë„ë¡ ì„¤ì • 
+	// listen() í•¨ìˆ˜ì˜ ë§¤ê°œë³€ìˆ˜ëŠ” sock(ì†Œì¼“ ì‹ë³„ìž/ ì†Œì¼“ ë””ìŠ¤í¬ë¦½í„°), backlog(ì—°ê²° ìš”ì²­ì„ ëŒ€ê¸°ì‹œí‚¬ ê³µê°„)
+	// ì²« ë²ˆì§¸ ì¸ìž : serv_sock(ì„œë²„ ì†Œì¼“), ë‘ ë²ˆì§¸ ì¸ìž : 5 (íì˜ í¬ê¸°ë¥¼ 5ë¡œ ì„¤ì •, í´ë¼ì´ì–¸íŠ¸ì˜ ì—°ê²° ìš”ì²­ì„ 5ê°œê¹Œì§€ ëŒ€ê¸°ì‹œí‚´)
+	// ë°˜í™˜ ê°’ :  ì„±ê³µ(0), ì‹¤íŒ¨(-1) 
 	if(listen(serv_sock, 5) == -1)
-		# ½ÇÆÐ ½Ã ¿¡·¯ ¸Þ½ÃÁö Àü´Þ  
+		// ì‹¤íŒ¨ ì‹œ ì—ëŸ¬ ë©”ì‹œì§€ ì „ë‹¬  
 		error_handling("listen() error"); 
 	
 	
 	while(1)
 	{
-		# Å¬¶óÀÌ¾ðÆ® ÁÖ¼Ò »çÀÌÁî  
+		// í´ë¼ì´ì–¸íŠ¸ ì£¼ì†Œ ì‚¬ì´ì¦ˆ  
 		clnt_adr_sz = sizeof(clnt_adr);
 		
-		# ¿äÃ»À» ±â´Ù¸®´Â ¼­¹ö ¼ÒÄÏ¿¡ ¿¬°á ¿äÃ»ÀÌ ¿ÔÀ» ¶§ ¿¬°á ¼ö¶ô
-		# ÇØ´ç ¼ÒÄÏÀ¸·ÎÀÇ ¿¬°á ¿äÃ»ÀÌ ¾ø´Â °æ¿ì, Å¬¶óÀÌ¾ðÆ®°¡ ¿¬°áÀ» ¿äÃ»ÇÒ ¶§±îÁö ¼ÒÄÏÀ» °è¼Ó °¨½ÃÇÏ¸é¼­ ´ë±â »óÅÂ À¯Áö  
-		# accept() ÇÔ¼öÀÇ ¸Å°³º¯¼ö´Â sockfd(¼ÒÄÏ µð½ºÅ©¸³ÅÍ), *serv_addr(¼­¹ö ÁÖ¼Ò Á¤º¸ Æ÷ÀÎÅÍ), *addlen(±¸Á¶Ã¼ÀÇ Å©±â)
-		# Ã¹ ¹øÂ° ÀÎÀÚ :  serv_sock(¼­¹ö ¼ÒÄÏ), µÎ ¹øÂ°ÀÎÀÚ : &clnt_adr(Å¬¶óÀÌ¾ðÆ® ÁÖ¼Ò), ¼¼ ¹ø¤Š ÀÎÀÚ : Å¬¶óÀÌ¾ðÆ® ÁÖ¼ÒÀÇ ±æÀÌ 
-		# ¹ÝÈ¯ °ª : ¼º°ø(-1 ¿ÜÀÇ ¼ÒÄÏ µð½ºÅ©¸³ÅÍ), ½ÇÆÐ(-1)  
+		// ìš”ì²­ì„ ê¸°ë‹¤ë¦¬ëŠ” ì„œë²„ ì†Œì¼“ì— ì—°ê²° ìš”ì²­ì´ ì™”ì„ ë•Œ ì—°ê²° ìˆ˜ë½
+		// í•´ë‹¹ ì†Œì¼“ìœ¼ë¡œì˜ ì—°ê²° ìš”ì²­ì´ ì—†ëŠ” ê²½ìš°, í´ë¼ì´ì–¸íŠ¸ê°€ ì—°ê²°ì„ ìš”ì²­í•  ë•Œê¹Œì§€ ì†Œì¼“ì„ ê³„ì† ê°ì‹œí•˜ë©´ì„œ ëŒ€ê¸° ìƒíƒœ ìœ ì§€  
+		// accept() í•¨ìˆ˜ì˜ ë§¤ê°œë³€ìˆ˜ëŠ” sockfd(ì†Œì¼“ ë””ìŠ¤í¬ë¦½í„°), *serv_addr(ì„œë²„ ì£¼ì†Œ ì •ë³´ í¬ì¸í„°), *addlen(êµ¬ì¡°ì²´ì˜ í¬ê¸°)
+		// ì²« ë²ˆì§¸ ì¸ìž :  serv_sock(ì„œë²„ ì†Œì¼“), ë‘ ë²ˆì§¸ì¸ìž : &clnt_adr(í´ë¼ì´ì–¸íŠ¸ ì£¼ì†Œ), ì„¸ ë²ˆÂŠ ì¸ìž : í´ë¼ì´ì–¸íŠ¸ ì£¼ì†Œì˜ ê¸¸ì´ 
+		// ë°˜í™˜ ê°’ : ì„±ê³µ(-1 ì™¸ì˜ ì†Œì¼“ ë””ìŠ¤í¬ë¦½í„°), ì‹¤íŒ¨(-1)  
 		clnt_sock = accept(serv_sock, (struct sockaddr *)&clnt_adr, &clnt_adr_sz); 
 		
-		# mutex °´Ã¼(mutx)´Â mutexÀ» ÅëÇØ ÀÓ°è±¸¿ª ÁøÀÔ ¿äÃ»
-		# ÁøÀÔÇÑ ¾²·¹µå°¡ ¾ø´Ù¸é(ÃÖ±Ù »óÅÂ°¡ unlocked) : lock »óÅÂ°¡ µÇ°í ÀÓ°è±¸¿ª ÁøÀÔ 
-		# ÁøÀÔÇÑ ¾²·¹µå°¡ ÀÖ´Ù¸é(ÃÖ±Ù »óÅÂ°¡ locked) : ÁøÀÔÇÑ ¾²·¹µå°¡ unlockÀ¸·Î ÀÓ°è±¸¿ªÀ» ºüÁ®³ª¿À±â Àü±îÁö ´ë±â 
+		// mutex ê°ì²´(mutx)ëŠ” mutexì„ í†µí•´ ìž„ê³„êµ¬ì—­ ì§„ìž… ìš”ì²­
+		// ì§„ìž…í•œ ì“°ë ˆë“œê°€ ì—†ë‹¤ë©´(ìµœê·¼ ìƒíƒœê°€ unlocked) : lock ìƒíƒœê°€ ë˜ê³  ìž„ê³„êµ¬ì—­ ì§„ìž… 
+		// ì§„ìž…í•œ ì“°ë ˆë“œê°€ ìžˆë‹¤ë©´(ìµœê·¼ ìƒíƒœê°€ locked) : ì§„ìž…í•œ ì“°ë ˆë“œê°€ unlockìœ¼ë¡œ ìž„ê³„êµ¬ì—­ì„ ë¹ ì ¸ë‚˜ì˜¤ê¸° ì „ê¹Œì§€ ëŒ€ê¸° 
 		pthread_mutex_lock(&mutx); 
 		
-		# ÀÓ°è ±¸¿ª  
-		# Å¬¶óÀÌ¾ðÆ® ¼ö¿Í ÆÄÀÏ µð½ºÅ©¸³ÅÍ ¼³Á¤  
+		// ìž„ê³„ êµ¬ì—­  
+		// í´ë¼ì´ì–¸íŠ¸ ìˆ˜ì™€ íŒŒì¼ ë””ìŠ¤í¬ë¦½í„° ì„¤ì •  
 		clnt_socks[clnt_cnt ++] = clnt_sock ; 
 		 
-		# mutex °´Ã¼(mutx)´Â mutexÀ» ÅëÇØ ÀÓ°è±¸¿ªÀ» ºüÁ®³ª¿Â´Ù. ÃÖ±Ù »óÅÂ¸¦ unlocked·Î ¼³Á¤   
+		// mutex ê°ì²´(mutx)ëŠ” mutexì„ í†µí•´ ìž„ê³„êµ¬ì—­ì„ ë¹ ì ¸ë‚˜ì˜¨ë‹¤. ìµœê·¼ ìƒíƒœë¥¼ unlockedë¡œ ì„¤ì •   
 		pthread_mutex_unlock(&mutx); 
 		
-		# ¾²·¹µå »ý¼º 
-		# pthread_create() ÇÔ¼öÀÇ ¸Å°³º¯¼ö´Â *thread(¼º°øÀûÀ¸·Î »ý¼ºµÈ ¾²·¹µåÀÇ ½Äº°ÀÚ), attr(¾²·¹µå Æ¯¼º ÁöÁ¤)
-		# , start_routine(ºÐ±â½ÃÄÑ¼­ ½ÇÇàÇÒ ¾²·¹µå ÇÔ¼ö), arg(¾²·¹µå ÇÔ¼öÀÇ ¸Å°³º¯¼ö)
-		# Ã¹ ¹øÂ° ÀÎÀÚ : &t_id(½Äº°ÀÚ), µÎ ¹øÂ° ÀÎÀÚ : NULL(±âº» Æ¯¼º ¼³Á¤), ¼¼ ¹øÂ° ÀÎÀÚ : handle_clnt(»ç¿ëÇÒ ¾²·¹µå ÇÔ¼ö), ³× ¹øÂ° ÀÎÀÚ : &clnt_sock(handle_clntÀÇ ÀÎÀÚ)
-		# ¹ÝÈ¯°ª : ¼º°ø(0), ½ÇÆÐ(0 ÀÌ ¾Æ´Ñ °ª) 
+		// ì“°ë ˆë“œ ìƒì„± 
+		// pthread_create() í•¨ìˆ˜ì˜ ë§¤ê°œë³€ìˆ˜ëŠ” *thread(ì„±ê³µì ìœ¼ë¡œ ìƒì„±ëœ ì“°ë ˆë“œì˜ ì‹ë³„ìž), attr(ì“°ë ˆë“œ íŠ¹ì„± ì§€ì •)
+		// , start_routine(ë¶„ê¸°ì‹œì¼œì„œ ì‹¤í–‰í•  ì“°ë ˆë“œ í•¨ìˆ˜), arg(ì“°ë ˆë“œ í•¨ìˆ˜ì˜ ë§¤ê°œë³€ìˆ˜)
+		// ì²« ë²ˆì§¸ ì¸ìž : &t_id(ì‹ë³„ìž), ë‘ ë²ˆì§¸ ì¸ìž : NULL(ê¸°ë³¸ íŠ¹ì„± ì„¤ì •), ì„¸ ë²ˆì§¸ ì¸ìž : handle_clnt(ì‚¬ìš©í•  ì“°ë ˆë“œ í•¨ìˆ˜), ë„¤ ë²ˆì§¸ ì¸ìž : &clnt_sock(handle_clntì˜ ì¸ìž)
+		// ë°˜í™˜ê°’ : ì„±ê³µ(0), ì‹¤íŒ¨(0 ì´ ì•„ë‹Œ ê°’) 
 		pthread_create(&t_id, NULL, handle_clnt, (void*)&clnt_sock); 
 		
-		# ¾²·¹µå¿¡ »ç¿ëµÈ ¸ðµç ÀÚ¿ø ÇØÁ¦(¾²·¹µå¸¦ ¸ÞÀÎ¾²·¹µå¿¡¼­ ºÐ¸®)
-		# pthread_detach() ÇÔ¼öÀÇ ¸Å°³º¯¼ö´Â th(ºÐ¸®½ÃÅ³ ¾²·¹µå ½Äº°ÀÚ) 
-		# ¹ÝÈ¯°ª : ¼º°ø(0), ½ÇÆÐ(0ÀÌ ¾Æ´Ñ °ª) 
+		// ì“°ë ˆë“œì— ì‚¬ìš©ëœ ëª¨ë“  ìžì› í•´ì œ(ì“°ë ˆë“œë¥¼ ë©”ì¸ì“°ë ˆë“œì—ì„œ ë¶„ë¦¬)
+		// pthread_detach() í•¨ìˆ˜ì˜ ë§¤ê°œë³€ìˆ˜ëŠ” th(ë¶„ë¦¬ì‹œí‚¬ ì“°ë ˆë“œ ì‹ë³„ìž) 
+		// ë°˜í™˜ê°’ : ì„±ê³µ(0), ì‹¤íŒ¨(0ì´ ì•„ë‹Œ ê°’) 
 		pthread_detach(t_id); 
 		
-		# ¿¬°áµÈ Å¬¶óÀÌ¾ðÆ® IP Ãâ·Â
-		# inet_ntoa(clnt_adr.sin_addr) : ³×Æ®¿öÅ© ¹ÙÀÌÆ® Á¤·Ä ¹æ½ÄÀÇ 4¹ÙÀÌÆ® Á¤¼öÀÇ IPv4 ÁÖ¼Ò(clnt_adr.sin_addr)¸¦ ¹®ÀÚ¿­ ÁÖ¼Ò·Î º¯È¯  
+		// ì—°ê²°ëœ í´ë¼ì´ì–¸íŠ¸ IP ì¶œë ¥
+		// inet_ntoa(clnt_adr.sin_addr) : ë„¤íŠ¸ì›Œí¬ ë°”ì´íŠ¸ ì •ë ¬ ë°©ì‹ì˜ 4ë°”ì´íŠ¸ ì •ìˆ˜ì˜ IPv4 ì£¼ì†Œ(clnt_adr.sin_addr)ë¥¼ ë¬¸ìžì—´ ì£¼ì†Œë¡œ ë³€í™˜  
 		printf("Connected client IP : %s \n", inet_ntoa(clnt_adr.sin_addr)); 
 	}
-	# ¼­¹öÃø ¼ÒÄÏ ¿¬°á Á¾·á  
+	// ì„œë²„ì¸¡ ì†Œì¼“ ì—°ê²° ì¢…ë£Œ  
 	close(serv_sock); 
 	return 0; 
 }
 
-# ¾²·¹µå ÇÔ¼ö : handle_clnt, ¸Å°³º¯¼ö¸¦ ¼ÒÄÏ ÇüÅÂ·Î ¹ÞÀ½  
+// ì“°ë ˆë“œ í•¨ìˆ˜ : handle_clnt, ë§¤ê°œë³€ìˆ˜ë¥¼ ì†Œì¼“ í˜•íƒœë¡œ ë°›ìŒ  
 void *handle_clnt(void *arg)
 {
-	# ¸Å°³º¯¼ö·Î ¹ÞÀº ¼ÒÄÏ  
+	// ë§¤ê°œë³€ìˆ˜ë¡œ ë°›ì€ ì†Œì¼“  
 	int clnt_sock = *((int*)arg); 
 	int str_len = 0, i ; 
 	char msg[BUF_SIZE]; 
 	
-	# ¼ÒÄÏ¿¡¼­ ÀÏÁ¤ Å©±â¸¸Å­ÀÇ µ¥ÀÌÅÍ¸¦ ÀÐ¾î¼­ msg¿¡ ÀúÀå, Å¬¶óÀÌ¾ðÆ®¿¡¼­ Á¾·á ½Ã, 0 ÀÐ°í Á¾·á  
-	# read() ÇÔ¼öÀÇ ¸Å°³º¯¼ö´Â fd(¼ÒÄÏ ÁöÁ¤¹øÈ£, µð½ºÅ©¸³ÅÍ), *buf(ÀÐ¾îµéÀÎ µ¥ÀÌÅÍ°¡ ÀúÀåµÉ ¹öÆÛ º¯¼ö), count(ÀÐ¾îµéÀÏ µ¥ÀÌÅÍÀÇ count Å©±â)
-	# Ã¹ ¹ø¤Š ÀÎÀÚ : clnt_sock(Å¬¶óÀÌ¾ðÆ® ¼ÒÄÏ), µÎ ¹øÂ° ÀÎÀÚ : msg(ÀÐ¾îµéÀÎ µ¥ÀÌÅÍ¸¦ ÀúÀåÇÒ ¹öÆÛ), ¼¼ ¹øÂ° ÀÎÀÚ : sizeof(msg)(¹öÆÛÀÇ Å©±â)
-	# ¹ÝÈ¯°ª : ¼º°ø(ÀÐ¾îµéÀÎ µ¥ÀÌÅÍÀÇ Å©±â : byte ´ÜÀ§), ½ÇÆÐ(-1)  
+	// ì†Œì¼“ì—ì„œ ì¼ì • í¬ê¸°ë§Œí¼ì˜ ë°ì´í„°ë¥¼ ì½ì–´ì„œ msgì— ì €ìž¥, í´ë¼ì´ì–¸íŠ¸ì—ì„œ ì¢…ë£Œ ì‹œ, 0 ì½ê³  ì¢…ë£Œ  
+	// read() í•¨ìˆ˜ì˜ ë§¤ê°œë³€ìˆ˜ëŠ” fd(ì†Œì¼“ ì§€ì •ë²ˆí˜¸, ë””ìŠ¤í¬ë¦½í„°), *buf(ì½ì–´ë“¤ì¸ ë°ì´í„°ê°€ ì €ìž¥ë  ë²„í¼ ë³€ìˆ˜), count(ì½ì–´ë“¤ì¼ ë°ì´í„°ì˜ count í¬ê¸°)
+	// ì²« ë²ˆÂŠ ì¸ìž : clnt_sock(í´ë¼ì´ì–¸íŠ¸ ì†Œì¼“), ë‘ ë²ˆì§¸ ì¸ìž : msg(ì½ì–´ë“¤ì¸ ë°ì´í„°ë¥¼ ì €ìž¥í•  ë²„í¼), ì„¸ ë²ˆì§¸ ì¸ìž : sizeof(msg)(ë²„í¼ì˜ í¬ê¸°)
+	// ë°˜í™˜ê°’ : ì„±ê³µ(ì½ì–´ë“¤ì¸ ë°ì´í„°ì˜ í¬ê¸° : byte ë‹¨ìœ„), ì‹¤íŒ¨(-1)  
 	while((str_len = read(clnt_sock, msg, sizeof(msg))) != 0)
-		# ¸ðµç Å¬¶óÀÌ¾ðÆ®¿¡ µ¥ÀÌÅÍ(¸Þ½ÃÁö) Àü¼Û : ÀÎÀÚ(µ¥ÀÌÅÍ(¸Þ½ÃÁö), µ¥ÀÌÅÍÀÇ Å©±â(±æÀÌ)) 
+		// ëª¨ë“  í´ë¼ì´ì–¸íŠ¸ì— ë°ì´í„°(ë©”ì‹œì§€) ì „ì†¡ : ì¸ìž(ë°ì´í„°(ë©”ì‹œì§€), ë°ì´í„°ì˜ í¬ê¸°(ê¸¸ì´)) 
 		send_msg(msg, str_len); 
 	
-	# ¿¬°áÀÌ ²÷¾îÁ³´Ù¸é µµ´Þ  
-	# mutex¿¡ ÁøÀÔ ¿äÃ»
-	# »óÅÂ°¡ lockedÀÎ °æ¿ì : unlocked°¡ µÉ ¶§(½ÇÇàÁßÀÎ ¾²·¹µå°¡ ³¡³¯ ¶§)±îÁö ´ë±â
-	# »óÅÂ°¡ unlockedÀÎ °æ¿ì : ÁøÀÔ  
+	// ì—°ê²°ì´ ëŠì–´ì¡Œë‹¤ë©´ ë„ë‹¬  
+	// mutexì— ì§„ìž… ìš”ì²­
+	// ìƒíƒœê°€ lockedì¸ ê²½ìš° : unlockedê°€ ë  ë•Œ(ì‹¤í–‰ì¤‘ì¸ ì“°ë ˆë“œê°€ ëë‚  ë•Œ)ê¹Œì§€ ëŒ€ê¸°
+	// ìƒíƒœê°€ unlockedì¸ ê²½ìš° : ì§„ìž…  
 	pthread_mutex_lock(&mutx);
 	
-	# ÀÓ°è ±¸¿ª ½ÃÀÛ  
-	# ¿¬°á Á¾·áµÈ Å¬¶óÀÌ¾ðÆ® »èÁ¦  
+	// ìž„ê³„ êµ¬ì—­ ì‹œìž‘  
+	// ì—°ê²° ì¢…ë£Œëœ í´ë¼ì´ì–¸íŠ¸ ì‚­ì œ  
 	for(i = 0 ; i < clnt_cnt; i ++)
 	{
 		if(clnt_sock == clnt_socks[i])
@@ -177,37 +182,37 @@ void *handle_clnt(void *arg)
 		}
 	}
 	clnt_cnt -- ; 
-	# ÀÓ°è ±¸¿ª ³¡ 
+	// ìž„ê³„ êµ¬ì—­ ë 
 	
-	# mutx(mutex °´Ã¼)ÀÇ »óÅÂ¸¦ unlocked·Î 
+	// mutx(mutex ê°ì²´)ì˜ ìƒíƒœë¥¼ unlockedë¡œ 
 	pthread_mutex_unlock(&mutx); 
 	
-	# Å¬¶óÀÌ¾ðÆ®Ãø ¼ÒÄÏ ¿¬°á Á¾·á  
+	// í´ë¼ì´ì–¸íŠ¸ì¸¡ ì†Œì¼“ ì—°ê²° ì¢…ë£Œ  
 	close(clnt_sock);
 	return NULL ; 
 }
 
-# ¸ðµç Å¬¶óÀÌ¾ðÆ®¿¡ µ¥ÀÌÅÍ Àü¼Û : ¸Å°³º¯¼ö(µ¥ÀÌÅÍ(¸Þ½ÃÁö), µ¥ÀÌÅÍÀÇ Å©±â) 
+// ëª¨ë“  í´ë¼ì´ì–¸íŠ¸ì— ë°ì´í„° ì „ì†¡ : ë§¤ê°œë³€ìˆ˜(ë°ì´í„°(ë©”ì‹œì§€), ë°ì´í„°ì˜ í¬ê¸°) 
 void send_msg(char *msg, int len)
 {
 	int i ; 
 	
-	# ÁøÀÔ ¿äÃ», locked°¡ ¾Æ´Ñ °æ¿ì( ½ÇÇà ÁßÀÎ ¾²·¹µå°¡ ¾ø´Â °æ¿ì) ÁøÀÔ : »óÅÂ´Â locked·Î ¹Ù²ñ  
+	// ì§„ìž… ìš”ì²­, lockedê°€ ì•„ë‹Œ ê²½ìš°( ì‹¤í–‰ ì¤‘ì¸ ì“°ë ˆë“œê°€ ì—†ëŠ” ê²½ìš°) ì§„ìž… : ìƒíƒœëŠ” lockedë¡œ ë°”ë€œ  
 	pthread_mutex_lock(&mutx); 
 	
-	# ÀÓ°è ±¸¿ª
-	# ¸ðµç Å¬¶óÀÌ¾ðÆ®¿¡°Ô µ¥ÀÌÅÍ(¸Þ½ÃÁö) Àü¼Û  
+	// ìž„ê³„ êµ¬ì—­
+	// ëª¨ë“  í´ë¼ì´ì–¸íŠ¸ì—ê²Œ ë°ì´í„°(ë©”ì‹œì§€) ì „ì†¡  
 	for(i = 0 ; i < clnt_cnt ; i ++)
-		# µ¥ÀÌÅÍ ¾²±â: ¹öÆÛ¿¡ ÇÊ¿äÇÑ Å©±â¸¸Å­fd¿¡ ÀÛ¼º 
-		# write() ÇÔ¼öÀÇ ¸Å°³º¯¼ö´Â fd(µð½ºÅ©¸³ÅÍ, ¼ÒÄÏ ÁöÁ¤ ¹øÈ£), buf(µ¥ÀÌÅÍ°¡ ÀúÀåµÈ ¹öÆÛ), count(º¸³¾ µ¥ÀÌÅÍÀÇ Å©±â)
-		# Ã¹ ¹øÂ° ÀÎÀÚ : clnt_socks[i](i¹øÂ° ¼ÒÄÏ), µÎ ¹øÂ° ÀÎÀÚ : º¸³¾ µ¥ÀÌÅÍ(¸Þ½ÃÁö), ¼¼ ¹øÂ° ÀÎÀÚ : µ¥ÀÌÅÍ(¸Þ½ÃÁö)ÀÇ Å©±â 
+		// ë°ì´í„° ì“°ê¸°: ë²„í¼ì— í•„ìš”í•œ í¬ê¸°ë§Œí¼fdì— ìž‘ì„± 
+		// write() í•¨ìˆ˜ì˜ ë§¤ê°œë³€ìˆ˜ëŠ” fd(ë””ìŠ¤í¬ë¦½í„°, ì†Œì¼“ ì§€ì • ë²ˆí˜¸), buf(ë°ì´í„°ê°€ ì €ìž¥ëœ ë²„í¼), count(ë³´ë‚¼ ë°ì´í„°ì˜ í¬ê¸°)
+		// ì²« ë²ˆì§¸ ì¸ìž : clnt_socks[i](ië²ˆì§¸ ì†Œì¼“), ë‘ ë²ˆì§¸ ì¸ìž : ë³´ë‚¼ ë°ì´í„°(ë©”ì‹œì§€), ì„¸ ë²ˆì§¸ ì¸ìž : ë°ì´í„°(ë©”ì‹œì§€)ì˜ í¬ê¸° 
 		write(clnt_socks[i], msg, len); 
 	
-	# ÁøÀÔ ÇØÁ¦, »óÅÂ¸¦ unlocked·Î  
+	// ì§„ìž… í•´ì œ, ìƒíƒœë¥¼ unlockedë¡œ  
 	pthread_mutex_unlock(&mutx); 
 }
 
-# ¿¡·¯ Ç¥Çö : ¸Å°³º¯¼ö(¿¡·¯ ¸Þ½ÃÁö) 
+// ì—ëŸ¬ í‘œí˜„ : ë§¤ê°œë³€ìˆ˜(ì—ëŸ¬ ë©”ì‹œì§€) 
 void error_handling(char *msg)
 {
 	fputs(msg, stderr); 
