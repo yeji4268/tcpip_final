@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	// main 함수에 전달되는 정보의 개수(argc)가 4개가 아닌 경우 
 	// 실행 시 실행경로(실행 파일 이름), IP, 포트 번호, 이름이 입력되지 않은 경우 올바른 사용법을 안내한다.  
 	if(argc != 4){
-		printf("Usage : %s <IP> <port> <name> \n", argv[0])
+		printf("Usage : %s <IP> <port> <name> \n", argv[0]);
 		
 		// 프로그램 종료 
 		exit(1); 
