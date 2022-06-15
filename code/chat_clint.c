@@ -99,19 +99,19 @@ int main(int argc, char *argv[])
 	return 0 ; 
 }
 
-// 서버에 데이터(메시지) 전송 : 매개변수(데이터(메시지), 데이터의 크기) 
+// 서버에 전송 
 void *send_msg(void *arg)
 {
 	// 매개변수로 받은 클라이언트 소켓  
 	int sock = *((int *)arg);
 	
-	// 메시지 배열 선언  
+	// 클라이언트 이름 배열 선언  
 	char name_msg[NAME_SIZE + BUF_SIZE]; 
 	
 	// 무한 루프  
 	while(1)
 	{  
-	    // 메시지 입력  
+	    	// 메시지 입력  
 		fgets(msg, BUF_SIZE, stdin); 
 		
 		// q 나 Q 입력 시, 소켓 연결 종료  
@@ -122,7 +122,7 @@ void *send_msg(void *arg)
 			//프로그램 종료 
 			exit(0);
 		}
-		// 메시지 배열에 입력  
+		// 배열에 입력  
 		sprintf(name_msg, "%s %s", name, msg);
 		
 		// 데이터 쓰기 : 메시지 전송 
